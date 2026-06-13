@@ -11,3 +11,6 @@ local.properties
 /.DS_Store
 /.cxx/
 /*.iml
+
+# Firebase/google services
+app/google-services.json
