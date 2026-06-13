@@ -37,6 +37,13 @@
         android:text="Sign In"
         android:layout_marginBottom="12dp" />
 
+    <Button
+        android:id="@+id/googleSignInButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Continue with Google"
+        android:layout_marginBottom="12dp" />
+
     <ProgressBar
         android:id="@+id/signInProgress"
         android:layout_width="wrap_content"

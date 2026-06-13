@@ -114,8 +114,3 @@ object PaymentManager : PurchasesUpdatedListener {
         }
     }
 }
-package app.cridergpt.android.payment
-
-object PaymentManager {
-    // Placeholder for payments/subscriptions integration (Stripe/Firebase)
-}

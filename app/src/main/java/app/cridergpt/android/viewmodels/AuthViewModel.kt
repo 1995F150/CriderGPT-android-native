@@ -36,17 +36,34 @@ class AuthViewModel : ViewModel() {
             return
         }
 
+        performSupabaseAuth(
+            requestUrl = BuildConfig.SUPABASE_URL.trimEnd('/') + "/auth/v1/token?grant_type=password",
+            requestBody = mapOf("email" to email, "password" to password)
+        )
+    }
+
+    fun signInWithGoogleIdToken(idToken: String) {
+        if (idToken.isBlank()) {
+            _error.value = "Google ID token is required"
+            return
+        }
+
+        performSupabaseAuth(
+            requestUrl = BuildConfig.SUPABASE_URL.trimEnd('/') + "/auth/v1/token?grant_type=id_token&provider=google",
+            requestBody = mapOf("id_token" to idToken)
+        )
+    }
+
+    private fun performSupabaseAuth(requestUrl: String, requestBody: Map<String, String>) {
         _isLoading.value = true
         _error.value = null
 
         viewModelScope.launch {
             try {
-                val url = BuildConfig.SUPABASE_URL.trimEnd('/') + "/auth/v1/token?grant_type=password"
-                val payload = mapOf("email" to email, "password" to password)
-                val bodyJson = gson.toJson(payload)
+                val bodyJson = gson.toJson(requestBody)
                 val mediaType = "application/json; charset=utf-8".toMediaType()
                 val request = Request.Builder()
-                    .url(url)
+                    .url(requestUrl)
                     .post(bodyJson.toRequestBody(mediaType))
                     .addHeader("apikey", BuildConfig.SUPABASE_ANON_KEY)
                     .addHeader("Content-Type", "application/json")
@@ -59,13 +76,12 @@ class AuthViewModel : ViewModel() {
                     _error.postValue("Sign-in failed: ${response.code}")
                     _signedIn.postValue(false)
                 } else {
-                    val map: Map<String, Any> = gson.fromJson(respBody, Map::class.java)
-                    val access = map["access_token"] as? String
-                    if (access.isNullOrBlank()) {
+                    val tokenResponse = gson.fromJson(respBody, SupabaseTokenResponse::class.java)
+                    if (tokenResponse.access_token.isNullOrBlank()) {
                         _error.postValue("Sign-in failed: no access token returned")
                         _signedIn.postValue(false)
                     } else {
-                        persistSession(access)
+                        persistSession(tokenResponse)
                         _signedIn.postValue(true)
                     }
                 }
@@ -79,13 +95,22 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    private fun persistSession(accessToken: String) {
+    private fun persistSession(tokenResponse: SupabaseTokenResponse) {
         try {
             val ctx: Context = CriderGPTApplication.instance.applicationContext
             val prefs = ctx.getSharedPreferences("cridergpt_prefs", Context.MODE_PRIVATE)
-            prefs.edit().putString("supabase_access_token", accessToken).apply()
+            prefs.edit().putString("supabase_access_token", tokenResponse.access_token)
+                .putString("supabase_refresh_token", tokenResponse.refresh_token)
+                .putLong("supabase_token_expires_at", System.currentTimeMillis() + ((tokenResponse.expires_in ?: 0) * 1000))
+                .apply()
         } catch (e: Throwable) {
             Log.w("AuthViewModel", "Failed to persist session", e)
         }
     }
+
+    private data class SupabaseTokenResponse(
+        val access_token: String?,
+        val refresh_token: String?,
+        val expires_in: Int?
+    )
 }

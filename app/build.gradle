@@ -16,6 +16,7 @@ android {
         versionName "2.2"
         buildConfigField "String", "SUPABASE_URL", "\"https://udpldrrpebdyuiqdtqnq.supabase.co\""
         buildConfigField "String", "SUPABASE_ANON_KEY", "\"sb_publishable_jK0QrNtV6HytstYsr5HRsA_E7B3PLKL\""
+        buildConfigField "String", "SUPABASE_GOOGLE_WEB_CLIENT_ID", "\"YOUR_GOOGLE_WEB_CLIENT_ID.apps.googleusercontent.com\""
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -67,13 +68,9 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
     // Google Sign-In
     implementation 'com.google.android.gms:play-services-auth:21.0.0'
-    // Firebase Cloud Messaging (optional)
-    implementation 'com.google.firebase:firebase-messaging:23.4.1'
     // Stripe SDK for payments (optional)
     implementation 'com.stripe:stripe-android:20.40.0'
     // Google Play Billing
     implementation 'com.android.billingclient:billing-ktx:6.0.1'
     implementation 'com.google.code.gson:gson:2.10.1'
 }
-
-apply plugin: 'com.google.gms.google-services'
