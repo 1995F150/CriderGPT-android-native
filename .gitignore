@@ -1,0 +1,13 @@
+# Ignore temporary reference repositories
+_reference_repos/
+
+# Gradle and Android build files
+.gradle/
+/build/
+/app/build/
+/.idea/
+/.gradle/
+local.properties
+/.DS_Store
+/.cxx/
+/*.iml
